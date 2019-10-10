@@ -38,6 +38,8 @@ class HuluClient(object):
                     so whatever it takes will work. Examples here:
                     http://docs.python-requests.org/en/master/user/quickstart/#cookies
 
+    @param extra_playlist_params: A dict of extra playlist parameters (optional)
+
     @return: HuluClient object
     """
 
