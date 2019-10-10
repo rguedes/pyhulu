@@ -46,8 +46,10 @@ class HuluClient(object):
     def __init__(self, device_code, device_key, cookies, extra_playlist_params={}):
         self.logger = logging.getLogger(__name__)
         self.device = Device(device_code, device_key)
-        self.cookies = cookies
         self.extra_playlist_params = extra_playlist_params
+
+        self.session = requests.Session()
+        self.session.cookies = cookies
 
         self.session_key, self.server_key = self.get_session_key()
 
@@ -74,7 +76,7 @@ class HuluClient(object):
         }
         params.update(self.extra_playlist_params)
 
-        resp = requests.post(url=base_url, json=params, cookies=self.cookies)
+        resp = self.session.post(url=base_url, json=params)
         ciphertext = self.__get_ciphertext(resp.text, params)
 
         return self.decrypt_response(self.session_key, ciphertext)
@@ -140,7 +142,7 @@ class HuluClient(object):
             'encrypted_nonce': nonce
         }
 
-        resp = requests.post(url=url, data=payload)
+        resp = self.session.post(url=url, data=payload)
         ciphertext = self.__get_ciphertext(resp.text, payload)
 
         config_dict = self.decrypt_response(
