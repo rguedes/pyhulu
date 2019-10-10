@@ -38,18 +38,21 @@ class HuluClient(object):
                     so whatever it takes will work. Examples here:
                     http://docs.python-requests.org/en/master/user/quickstart/#cookies
 
+    @param proxy: Proxy URL to use for requests to the Hulu API (optional)
+
     @param extra_playlist_params: A dict of extra playlist parameters (optional)
 
     @return: HuluClient object
     """
 
-    def __init__(self, device_code, device_key, cookies, extra_playlist_params={}):
+    def __init__(self, device_code, device_key, cookies, proxy=None, extra_playlist_params={}):
         self.logger = logging.getLogger(__name__)
         self.device = Device(device_code, device_key)
         self.extra_playlist_params = extra_playlist_params
 
         self.session = requests.Session()
         self.session.cookies = cookies
+        self.session.proxies = {'http': proxy, 'https': proxy}
 
         self.session_key, self.server_key = self.get_session_key()
 
