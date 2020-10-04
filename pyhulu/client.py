@@ -68,11 +68,11 @@ class HuluClient(object):
         @return: Dict of decrypted playlist response
         """
 
-        base_url = 'https://play.hulu.com/v4/playlist'
+        base_url = 'https://play.hulu.com/v5/playlist'
         params = {
             'device_identifier': hashlib.md5().hexdigest().upper(),
             'deejay_device_id': int(self.device.device_code),
-            'version': 1,
+            'version': 409160,
             'content_eab_id': video_id,
             'rv': random.randrange(1E5, 1E6),
             'kv': self.server_key,
@@ -135,14 +135,19 @@ class HuluClient(object):
 
         nonce = hashlib.md5(base).hexdigest()
 
-        url = 'https://play.hulu.com/config'
+        url = 'https://play.hulu.com/config?app_version=4.8.0'
         payload = {
             'rv': random_value,
-            'mozart_version': '1',
             'region': 'US',
-            'version': version,
+            'device_model': 'AFTT',
+            'android_sdk_version': 22,
+            'android_version': '5.1.1',
+            'o3n': '68fcf672a4760ae2cf1a62abf919a2d82af08f17b5d12949ab3d92282850dc056b32984ab35a933da72d8ef0be615af8',
+            'device_id': 'bbb67585088b5e65',
+            'version': '409160',
             'device': self.device.device_code,
-            'encrypted_nonce': nonce
+            'encrypted_nonce': nonce,
+            'unencrypted': 'true',
         }
 
         resp = self.session.post(url=url, data=payload)
