@@ -123,7 +123,7 @@ class HuluClient(object):
         @return: Session key in bytes
         """
 
-        version = '409160'
+        version = '3293E499P3.7.109'
         random_value = random_value = random.randrange(1E5, 1E6)
 
         base = '{device_key},{device},{version},{random_value}'.format(
