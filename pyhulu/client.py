@@ -135,7 +135,7 @@ class HuluClient(object):
 
         nonce = hashlib.md5(base).hexdigest()
 
-        url = 'https://play.hulu.com/config?app_version=4.8.0'
+        url = 'https://play.hulu.com/config'
         payload = {
             'device': self.device.device_code,
             'format': 'json',
@@ -145,9 +145,7 @@ class HuluClient(object):
             'encrypted_nonce': nonce,
             'android_version': '5.1.1',
             'rv': random_value,
-            'o3n': '68fcf672a4760ae2cf1a62abf919a2d82af08f17b5d12949ab3d92282850dc056b32984ab35a933da72d8ef0be615af8',
-            'device_id': 'bbb67585088b5e65',
-            'version': '409160',
+            'device_id': '84904788-d26b-4a69-b8e2-93ad47f0a228',
             'device': self.device.device_code,
             'unencrypted': 'true',
         }
