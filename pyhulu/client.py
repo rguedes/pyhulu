@@ -147,7 +147,7 @@ class HuluClient(object):
             'version': '1.88',
             'device': self.device.device_code,
             'encrypted_nonce': nonce,
-            'unencrypted': 'true',
+            'unencrypted': 'false',
         }
 
         resp = self.session.post(url=url, data=payload)
