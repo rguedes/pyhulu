@@ -123,8 +123,8 @@ class HuluClient(object):
         @return: Session key in bytes
         """
 
-        version = '1'
-        random_value = random.randrange(1E5, 1E6)
+        version = '409160'
+        random_value = "307330725"
 
         base = '{device_key},{device},{version},{random_value}'.format(
             device_key=binascii.hexlify(self.device.device_key).decode('utf8'),
@@ -137,17 +137,19 @@ class HuluClient(object):
 
         url = 'https://play.hulu.com/config?app_version=4.8.0'
         payload = {
-            'rv': random_value,
+            'device': self.device.device_code,
+            'format': 'json',
             'region': 'US',
             'device_model': 'AFTT',
-            'android_sdk_version': 22,
+            'android_sdk_version': '22',
+            'encrypted_nonce': nonce,
             'android_version': '5.1.1',
+            'rv': random_value,
             'o3n': '68fcf672a4760ae2cf1a62abf919a2d82af08f17b5d12949ab3d92282850dc056b32984ab35a933da72d8ef0be615af8',
             'device_id': 'bbb67585088b5e65',
-            'version': '1.88',
+            'version': '409160',
             'device': self.device.device_code,
-            'encrypted_nonce': nonce,
-            'unencrypted': 'false',
+            'unencrypted': 'true',
         }
 
         resp = self.session.post(url=url, data=payload)
