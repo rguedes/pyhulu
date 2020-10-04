@@ -124,7 +124,7 @@ class HuluClient(object):
         """
 
         version = '409160'
-        random_value = "307330725"
+        random_value = random_value = random.randrange(1E5, 1E6)
 
         base = '{device_key},{device},{version},{random_value}'.format(
             device_key=binascii.hexlify(self.device.device_key).decode('utf8'),
