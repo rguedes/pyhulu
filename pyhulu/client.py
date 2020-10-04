@@ -144,7 +144,7 @@ class HuluClient(object):
             'android_version': '5.1.1',
             'o3n': '68fcf672a4760ae2cf1a62abf919a2d82af08f17b5d12949ab3d92282850dc056b32984ab35a933da72d8ef0be615af8',
             'device_id': 'bbb67585088b5e65',
-            'version': '409160',
+            'version': '1',
             'device': self.device.device_code,
             'encrypted_nonce': nonce,
             'unencrypted': 'true',
