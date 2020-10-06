@@ -1,6 +1,5 @@
 """
 Client module
-
 Main module for Hulu API requests
 """
 
@@ -21,65 +20,50 @@ from pyhulu.device import Device
 class HuluClient(object):
     """
     HuluClient class
-
     Main class for Hulu API requests
-
     __init__:
-
     @param device_code: Three-digit string or integer (doesn't matter)
                         denoting the device you will make requests as
-
     @param device_key: 16-byte AES key that corresponds to the device
                        code you're using. This is used to decrypt the
                        device config response.
-
     @param cookies: Either a cookie jar object or a dict of cookie
                     key / value pairs. This is passed to the requests library,
                     so whatever it takes will work. Examples here:
                     http://docs.python-requests.org/en/master/user/quickstart/#cookies
-
-    @param proxy: Proxy URL to use for requests to the Hulu API (optional)
-
-    @param extra_playlist_params: A dict of extra playlist parameters (optional)
-
     @return: HuluClient object
     """
 
-    def __init__(self, device_code, device_key, cookies, proxy=None, extra_playlist_params={}):
+    def __init__(self, device_code, device_key, cookies, version=1, extra_playlist_params={}):
         self.logger = logging.getLogger(__name__)
         self.device = Device(device_code, device_key)
+        self.cookies = cookies
+        self.version = version
         self.extra_playlist_params = extra_playlist_params
-
-        self.session = requests.Session()
-        self.session.cookies = cookies
-        self.session.proxies = {'http': proxy, 'https': proxy}
 
         self.session_key, self.server_key = self.get_session_key()
 
     def load_playlist(self, video_id):
         """
         load_playlist()
-
         Method to get a playlist containing the MPD
         and license URL for the provided video ID and return it
-
         @param video_id: String of the video ID to get a playlist for
-
         @return: Dict of decrypted playlist response
         """
 
-        base_url = 'https://play.hulu.com/v5/playlist'
+        base_url = 'https://play.hulu.com/v6/playlist'
         params = {
             'device_identifier': hashlib.md5().hexdigest().upper(),
             'deejay_device_id': int(self.device.device_code),
-            'version': 409160,
+            'version': self.version,
             'content_eab_id': video_id,
             'rv': random.randrange(1E5, 1E6),
             'kv': self.server_key,
         }
         params.update(self.extra_playlist_params)
 
-        resp = self.session.post(url=base_url, json=params)
+        resp = requests.post(url=base_url, json=params, cookies=self.cookies)
         ciphertext = self.__get_ciphertext(resp.text, params)
 
         return self.decrypt_response(self.session_key, ciphertext)
@@ -87,12 +71,9 @@ class HuluClient(object):
     def decrypt_response(self, key, ciphertext):
         """
         decrypt_response()
-
         Method to decrypt an encrypted response with provided key
-
         @param key: Key in bytes
         @param ciphertext: Ciphertext to decrypt in bytes
-
         @return: Decrypted response as a dict
         """
 
@@ -116,20 +97,17 @@ class HuluClient(object):
     def get_session_key(self):
         """
         get_session_key()
-
         Method to do a Hulu config request and calculate
         the session key against device key and current server key
-
         @return: Session key in bytes
         """
 
-        version = '3293E499P3.7.109'
-        random_value = random_value = random.randrange(1E5, 1E6)
+        random_value = random.randrange(1E5, 1E6)
 
         base = '{device_key},{device},{version},{random_value}'.format(
             device_key=binascii.hexlify(self.device.device_key).decode('utf8'),
             device=self.device.device_code,
-            version=version,
+            version=self.version,
             random_value=random_value
         ).encode('utf8')
 
@@ -137,21 +115,15 @@ class HuluClient(object):
 
         url = 'https://play.hulu.com/config'
         payload = {
-            'device': self.device.device_code,
-            'format': 'json',
-            'region': 'US',
-            'device_model': 'AFTT',
-            'android_sdk_version': '22',
-            'encrypted_nonce': nonce,
-            'android_version': '5.1.1',
             'rv': random_value,
-            'device_id': '84904788-d26b-4a69-b8e2-93ad47f0a228',
-            'version': '3293E499P3.7.109',
+            'mozart_version': '1',
+            'region': 'US',
+            'version': self.version,
             'device': self.device.device_code,
-            'unencrypted': 'true',
+            'encrypted_nonce': nonce
         }
 
-        resp = self.session.post(url=url, data=payload)
+        resp = requests.post(url=url, data=payload)
         ciphertext = self.__get_ciphertext(resp.text, payload)
 
         config_dict = self.decrypt_response(
