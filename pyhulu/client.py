@@ -52,7 +52,7 @@ class HuluClient(object):
         @return: Dict of decrypted playlist response
         """
 
-        base_url = 'https://play.hulu.com/v6/playlist'
+        base_url = 'https://play.hulu.com/v4/playlist'
         params = {
             'device_identifier': hashlib.md5().hexdigest().upper(),
             'deejay_device_id': int(self.device.device_code),
