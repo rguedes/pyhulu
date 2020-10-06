@@ -11,7 +11,6 @@ DEVICE_KEY = bytes.fromhex('6ebfc84f3c304217b20fd9a66cb5957f')
 class ClientTests(unittest.TestCase):
     """
     ClientTests()
-
     Test cases for the client module
     """
 
@@ -25,7 +24,6 @@ class ClientTests(unittest.TestCase):
     def test_load_playlist(self):
         """
         test_load_playlist()
-
         Tests playlist loading
         """
 
@@ -35,7 +33,6 @@ class ClientTests(unittest.TestCase):
     def test_exception(self):
         """
         test_exception()
-
         Tests exception raising
         """
 
@@ -45,14 +42,12 @@ class ClientTests(unittest.TestCase):
 class DeviceTests(unittest.TestCase):
     """
     DeviceTests()
-
     Test cases for the device module
     """
 
     def test_exceptions(self):
         """
         test_exceptions()
-
         Tests exception raising
         """
 

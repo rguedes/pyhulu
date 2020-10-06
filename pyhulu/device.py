@@ -1,6 +1,5 @@
 """
 Device module
-
 Module containing Device data class
 """
 
@@ -10,7 +9,6 @@ import base64
 class Device(object):  # pylint: disable=too-few-public-methods
     """
     Device()
-
     Data class used for containing device attributes
     """
 
