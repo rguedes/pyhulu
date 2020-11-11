@@ -65,7 +65,7 @@ class HuluClient(object):
 
         base_url = 'https://play.hulu.com/v4/playlist'
         params = {
-            'device_identifier': 'ce101f73c2e78668',
+            'device_identifier': hashlib.md5().hexdigest().upper(),
             'deejay_device_id': int(self.device.device_code),
             'version': self.version,
             'region': 'US',
@@ -124,7 +124,7 @@ class HuluClient(object):
         """
 
         random_value = random.randrange(1E5, 1E6)
-        #print(binascii.hexlify(self.device.device_key).decode('utf8'))
+        
         base = '{device_key},{device},{version},{random_value}'.format(
             device_key=binascii.hexlify(self.device.device_key).decode('utf8'),
             device=self.device.device_code,
@@ -142,7 +142,6 @@ class HuluClient(object):
             'version': self.version,
             'device': self.device.device_code,
             'encrypted_nonce': nonce,
-            'region': "US",
             'format': "json",
         }
 
