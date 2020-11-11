@@ -1,5 +1,6 @@
 """
 Client module
+
 Main module for Hulu API requests
 """
 
@@ -20,24 +21,31 @@ from pyhulu.device import Device
 class HuluClient(object):
     """
     HuluClient class
+
     Main class for Hulu API requests
+
     __init__:
+
     @param device_code: Three-digit string or integer (doesn't matter)
                         denoting the device you will make requests as
+
     @param device_key: 16-byte AES key that corresponds to the device
                        code you're using. This is used to decrypt the
                        device config response.
+
     @param cookies: Either a cookie jar object or a dict of cookie
                     key / value pairs. This is passed to the requests library,
                     so whatever it takes will work. Examples here:
                     http://docs.python-requests.org/en/master/user/quickstart/#cookies
+
     @return: HuluClient object
     """
 
-    def __init__(self, device_code, device_key, cookies, version=1, extra_playlist_params={}):
+    def __init__(self, device_code, device_key, cookies, user_token=None, version=1, extra_playlist_params={}):
         self.logger = logging.getLogger(__name__)
         self.device = Device(device_code, device_key)
         self.cookies = cookies
+        self.user_token = user_token
         self.version = version
         self.extra_playlist_params = extra_playlist_params
 
@@ -46,24 +54,32 @@ class HuluClient(object):
     def load_playlist(self, video_id):
         """
         load_playlist()
+
         Method to get a playlist containing the MPD
         and license URL for the provided video ID and return it
+
         @param video_id: String of the video ID to get a playlist for
+
         @return: Dict of decrypted playlist response
         """
 
         base_url = 'https://play.hulu.com/v4/playlist'
         params = {
-            'device_identifier': hashlib.md5().hexdigest().upper(),
+            'device_identifier': 'ce101f73c2e78668',
             'deejay_device_id': int(self.device.device_code),
             'version': self.version,
+            'region': 'US',
             'content_eab_id': video_id,
             'rv': random.randrange(1E5, 1E6),
             'kv': self.server_key,
+            'lat': '40.12892072204622',
+            'long': '-74.13258254528046',
         }
         params.update(self.extra_playlist_params)
-
-        resp = requests.post(url=base_url, json=params, cookies=self.cookies)
+        if self.user_token:
+            resp = requests.post(url=base_url, params={'user_token': self.user_token}, json=params)
+        else:
+            resp = requests.post(url=base_url, json=params, cookies=self.cookies)
         ciphertext = self.__get_ciphertext(resp.text, params)
 
         return self.decrypt_response(self.session_key, ciphertext)
@@ -71,9 +87,12 @@ class HuluClient(object):
     def decrypt_response(self, key, ciphertext):
         """
         decrypt_response()
+
         Method to decrypt an encrypted response with provided key
+
         @param key: Key in bytes
         @param ciphertext: Ciphertext to decrypt in bytes
+
         @return: Decrypted response as a dict
         """
 
@@ -97,13 +116,15 @@ class HuluClient(object):
     def get_session_key(self):
         """
         get_session_key()
+
         Method to do a Hulu config request and calculate
         the session key against device key and current server key
+
         @return: Session key in bytes
         """
 
         random_value = random.randrange(1E5, 1E6)
-
+        #print(binascii.hexlify(self.device.device_key).decode('utf8'))
         base = '{device_key},{device},{version},{random_value}'.format(
             device_key=binascii.hexlify(self.device.device_key).decode('utf8'),
             device=self.device.device_code,
@@ -120,10 +141,13 @@ class HuluClient(object):
             'region': 'US',
             'version': self.version,
             'device': self.device.device_code,
-            'encrypted_nonce': nonce
+            'encrypted_nonce': nonce,
+            'region': "US",
+            'format': "json",
         }
 
         resp = requests.post(url=url, data=payload)
+
         ciphertext = self.__get_ciphertext(resp.text, payload)
 
         config_dict = self.decrypt_response(
